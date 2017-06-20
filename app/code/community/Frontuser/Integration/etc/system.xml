@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Frontuser Integration
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * =================================================================
+ *                 MAGENTO EDITION USAGE NOTICE
+ * =================================================================
+ * This software is designed to work with Magento community edition and
+ * its use on an edition other than specified is prohibited. Frontuser does not
+ * provide extension support in case of incorrect edition use.
+ * =================================================================
+ *
+ * =================================================================
+ *                  DISCLAIMER
+ * =================================================================
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magento.com for more information.
+ *
+ * @category    Frontuser
+ * @package     Frontuser_Integration
+ * @author Frontuser Team <support@frontuser.com>
+ * @copyright  Copyright (c) 2017 Frontuser. (https://frontuser.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+ -->
+<config>
+    <tabs>
+        <frontuser translate="label">
+            <label>Frontuser</label>
+            <sort_order>10</sort_order>
+        </frontuser>
+    </tabs>
+    <sections>
+        <frontuser translate="label" module="adminhtml">
+            <label>Frontuser</label>
+            <tab>frontuser</tab>
+            <sort_order>10</sort_order>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+            <groups>
+                <general translate="label comment">
+                    <label>General</label>
+                    <sort_order>50</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <active translate="label comment">
+                            <label>Enable/Disable</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>10</sort_order>
+                            <source_model>adminhtml/system_config_source_enabledisable</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </active>
+                        <website_hash translate="label comment">
+                            <label>Website Hash</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </website_hash>
+                        <matrix_variable_feature translate="label comment">
+                            <label>Matrix Variable Feature</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>30</sort_order>
+                            <source_model>adminhtml/system_config_source_enabledisable</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <active>1</active>
+                            </depends>
+                        </matrix_variable_feature>
+                        <customer_map_fields translate="label comment">
+                            <label>Customer Attributes Mapping</label>
+                            <frontend_model>Frontuser_Integration_Block_Adminhtml_System_Config_Form_Field_CustomerMapfields</frontend_model>
+                            <backend_model>Frontuser_Integration_Model_System_Config_Backend_Mapfield</backend_model>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <active>1</active>
+                            </depends>
+                        </customer_map_fields>
+
+                        <product_map_fields translate="label comment">
+                            <label>Product Attributes Mapping</label>
+                            <frontend_model>Frontuser_Integration_Block_Adminhtml_System_Config_Form_Field_ProductMapfields</frontend_model>
+                            <backend_model>Frontuser_Integration_Model_System_Config_Backend_Mapfield</backend_model>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <active>1</active>
+                            </depends>
+                        </product_map_fields>
+                    </fields>
+                </general>
+            </groups>
+        </frontuser>
+    </sections>
+</config>

@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<layout version="0.1.0">
+    <default>
+        <reference name="head" after="-">
+            <block type="core/template" name="pinSearch" template="frontuser/core.phtml"/>
+        </reference>
+    </default>
+</layout>

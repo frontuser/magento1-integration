@@ -1,0 +1,380 @@
+<?php
+/**
+ * Frontuser Integration
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * =================================================================
+ *                 MAGENTO EDITION USAGE NOTICE
+ * =================================================================
+ * This software is designed to work with Magento community edition and
+ * its use on an edition other than specified is prohibited. Frontuser does not
+ * provide extension support in case of incorrect edition use.
+ * =================================================================
+ *
+ * =================================================================
+ *                  DISCLAIMER
+ * =================================================================
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magento.com for more information.
+ *
+ * @category    Frontuser
+ * @package     Frontuser_Integration
+ * @author Frontuser Team <support@frontuser.com>
+ * @copyright  Copyright (c) 2017 Frontuser. (https://frontuser.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+?>
+<?php if (Mage::helper('frontuser')->isModuleEnabled('Frontuser_Integration')): ?>
+    <?php if (Mage::helper('frontuser')->isActive()): ?>
+        <?php if (Mage::helper('frontuser')->getWebsiteHash()): ?>
+            <script type="text/javascript">//<![CDATA[
+                var Translator = new Translate([]);
+                //]]></script>
+            <script type="text/javascript">
+                (function (p, u, s, h) {
+                    var t = '<?php echo Mage::helper('frontuser')->getWebsiteHash(); ?>';
+                    p._fq = p._fq || [];
+                    p._fq.push(['_currentTime', Date.now()]);
+                    s = u.createElement('script');
+                    s.type = 'text/javascript';
+                    s.async = true;
+                    s.src = 'https://cdn.frontuser.com/sdk/1.0/fuser-' + t + '.js',
+                        h = u.getElementsByTagName('script')[0];
+                    h.parentNode.insertBefore(s, h);
+                })(window, document);
+            </script>
+        <?php endif; ?>
+
+
+        <?php if (Mage::helper('frontuser')->isMatrixDataActive()): ?>
+        <?php
+        $matrixData = array();
+        Varien_Profiler::start('Frontuser_Integration');
+        if (Mage::getSingleton('customer/session')->isLoggedIn()) {
+            $customer_data = Mage::getSingleton('customer/session')->getCustomer();
+            if (Mage::helper('frontuser')->getCustomMergeFieldsSerialized()) {
+                $jsonCustAttributes = Mage::helper('frontuser')->getCustomMergeFieldsSerialized();
+                $arrCustAttributes = unserialize($jsonCustAttributes);
+                $userData = array(
+                    'id' => $customer_data->getId(),
+                    'name' => $customer_data->getName(),
+                    'email' => $customer_data->getEmail(),
+
+                );
+                foreach ($arrCustAttributes as $key => $value) {
+                    $key = $value['fu_customer_key'];
+                    $value = $value['fu_customer_value'];
+                    $userData[$key] = $customer_data->$value;
+                }
+            }
+            $matrixData['user'] = $userData;
+        }
+
+        $pageIdentifier = Mage::app()->getFrontController()->getAction()->getFullActionName();
+        $matrixData['page'] = array(
+            'name' => $this->getLayout()->getBlock('head')->getTitle(),
+            'type' => Mage::app()->getFrontController()->getRequest()->getRouteName(),
+            'url' => Mage::helper('core/url')->getCurrentUrl()
+
+        );
+
+        if ($this->getUrl('') == $this->getUrl('*/*/*', array('_current' => true, '_use_rewrite' => true))) {
+            $queryString = Mage::app()->getRequest()->getServer('QUERY_STRING');
+            $utmMedium = Mage::app()->getRequest()->getParam('utm_medium');
+            $utmSource = Mage::app()->getRequest()->getParam('utm_source');
+            $utmCampaign = Mage::app()->getRequest()->getParam('utm_campaign');
+
+            $matrixData['referrer'] = array(
+                    // For Home Page
+                'host' =>  Mage::app()->getRequest()->getServer('HTTP_HOST'),
+                'path' => Mage::app()->getRequest()->getServer('REQUEST_URI'),
+                'search' => !empty($queryString)? $queryString : '',
+                "utm" => array(
+                    "medium" => !empty($utmMedium) ? $utmMedium : '',
+                    "source" => !empty($utmSource) ?  $utmSource  : '',
+                    "campaign" => !empty($utmCampaign) ? $utmCampaign  : '',
+                ),
+            );
+        }
+        if (Mage::registry('current_category') && $pageIdentifier == 'catalog_category_view') {
+
+            $catId = Mage::registry('current_category')->getId();
+
+            $category = Mage::getModel('catalog/category')->load($catId);
+            $products = Mage::getModel('catalog/product')
+                ->getCollection()
+                ->addAttributeToSelect('*')
+                ->addCategoryFilter($category)
+                ->setOrder('price', 'ASC')
+                ->load();
+
+            $items = array();
+
+            foreach ($products as $product) {
+                $data = $product->getData();
+                $test = array(
+                    "pid" => $data['entity_id'],
+                    "sku" => $data['sku'],
+                    "name" => $data['name'],
+                    "stock" => '',
+                    "currency" => '',
+                    "unit_price" => $data['price'],
+                    "final_price" => $data['final_price']
+                );
+                array_push($items, $test);
+            }
+
+            $matrixData['category'] = array(
+                'id' => $catId,
+                'name' => $category->getName(),
+                'listing' => array(
+                    "search_term" => '',
+                    "items_count" => '',
+                    "sorting" => array(
+                        "by" => '',
+                        "direction" => '',
+                    ),
+                    "items" => $items
+                ),
+            );
+        }
+           // <?php
+
+
+        if (Mage::registry('current_product') && $pageIdentifier == 'catalog_product_view') {
+            $productId = Mage::registry('current_product')->getId();
+
+            $_product = Mage::getModel('catalog/product')->setStoreId(Mage::app()->getStore()->getId())->load($productId);
+
+            $categoryIds = $_product->getCategoryIds();
+            if ($_product->getTypeId() == 'configurable') {
+                $attributes = $_product->getTypeInstance(true)->getConfigurableAttributesAsArray($_product);
+                $proAttribute = array();
+                if (!empty($attributes)) {
+                    foreach ($attributes as $attribute) {
+                        $attributeCode = $attribute['label'];
+                        $val = array();
+                        foreach ($attribute['values'] as $value) {
+                            $row = array();
+                            if ($value['product_super_attribute_id'] == $attribute['id']) {
+                                array_push($val, $value['label']);
+                            }
+                        }
+                        $row[$attributeCode] = $val;
+                        $proAttribute[] = $row;
+                    }
+                }
+            }
+
+            $collection = Mage::getModel('catalog/product_link')
+                ->getCollection()
+                ->addFieldToFilter('product_id', $productId)
+                ->addFieldToFilter('link_type_id', '1')
+                ->addFieldToSelect('linked_product_id');
+            $related_products = $collection->getData();
+
+            $arrRelatedProduct = array();
+            foreach ($related_products as $related_product) {
+                $pId = $related_product['linked_product_id'];
+                $objPro = Mage::getModel('catalog/product');
+                $relatedProduct = $objPro->load($pId); // Enter your Product Id in $product_id
+
+                $arrProduct = array(
+                    "pid" => $pId,
+                    'sku' => $relatedProduct->getSku(),
+                    'name' => $relatedProduct->getName(),
+                    'stock' => $relatedProduct->getStockItem()->getQty(),
+                    'currency' => Mage::app()->getStore()->getCurrentCurrencyCode(),
+                    'unit_price' => $relatedProduct->getPrice(),
+                    'final_price' => $relatedProduct->getFinalPrice()
+                );
+                array_push($arrRelatedProduct, $arrProduct);
+            }
+            $catIds = '';
+            if (is_array($categoryIds)) {
+                $catIds = implode(',', $categoryIds);
+            } else {
+                $catIds = $categoryIds;
+            }
+
+            $reviews = Mage::getModel('review/review')
+                ->getResourceCollection()
+                ->addStoreFilter(Mage::app()->getStore()->getId())
+                ->addEntityFilter('product', $productId)
+                ->addStatusFilter(Mage_Review_Model_Review::STATUS_APPROVED)
+                ->setDateOrder()
+                ->addRateVotes();
+
+            /**
+             * Getting average of ratings/reviews
+             */
+            $proReviews = array();
+            if (count($reviews) > 0) {
+                foreach ($reviews->getItems() as $review) {
+                    foreach ($review->getRatingVotes() as $vote) {
+                        $ratings = $vote->getvalue();
+                    }
+                    $reviewsVal = array('comment' => $review->getDetail(),
+                        'rating' => $ratings
+                    );
+                    array_push($proReviews, $reviewsVal);
+                }
+            }
+            $productData = array(
+                'id' => $productId,
+                'name' => $_product->getName(),
+                'description' => $_product->getDescription(),
+                'cat_id' => $catIds,
+                'stock' => $_product->getQty(),
+                'currency' => Mage::app()->getStore()->getCurrentCurrencyCode(),
+                'unit_price' => '',
+                'final_price' => $_product->getPrice(),
+                'attributes' => $proAttribute,
+                'related_products' => $arrRelatedProduct,
+                'reviews' => $proReviews
+            );
+
+            if (Mage::helper('frontuser')->getProductMergeFieldsSerialized()) {
+                $jsonProductAttributes = Mage::helper('frontuser')->getProductMergeFieldsSerialized();
+                $arrProductAttributes = unserialize($jsonProductAttributes);
+
+                foreach ($arrProductAttributes as $key => $value) {
+                    $attrKey = $value['fu_product_key'];
+
+                    $attrCode = $value['fu_product_value'];
+                    $attribute = $_product->getResource()->getAttribute($attrCode);
+                    if ($attribute) {
+                        $attribute_value = $attribute->getFrontend()->getValue($_product);
+                        $productData[$attrKey] = $_product->getData($attrCode);
+                    }
+                }
+            }
+            $matrixData['product'] = $productData;
+        }
+
+        $request = $this->getRequest();
+        $module = $request->getModuleName();
+        $controller = $request->getControllerName();
+        $action = $request->getActionName();
+
+        if ($module == 'checkout' && $controller == 'cart' && $action == 'index') {
+            $cart = Mage::getModel('checkout/cart')->getQuote();
+            $cartItems = array();
+            foreach ($cart->getItemsCollection() as $item) {
+                $row = array();
+                $row['quote_item_id'] = $item->getId();
+                $row['pid'] = $item->getProductId();
+                $row['sku'] = $item->getSku();
+                $row['name'] = $item->getName();
+                $row['currency'] = Mage::app()->getStore()->getCurrentCurrencyCode();
+                $row['unit_price'] = $item->getPrice();
+                $row['final_price'] = $item->getFinalPrice();
+                $row['qty_added'] = (int)$item->getQty();
+                $row['row_total'] = $item->getRowTotal();
+                $row['discount_amount'] = $item->getDiscountAmount();
+                $row['created_on'] = $item->getCreatedAt();
+                $row['updated_on'] = $item->getUpdatedAt();
+                $cartItems[] = $row;
+            }
+
+            $matrixData['cart'] = array(
+                'quote_id' => $cart->getEntityId(),
+                'items_qty' => $cart->getItemsQty(),
+                'currency' => $cart->getQuoteCurrencyCode(),
+                "subtotal" => $cart->getSubtotal(),
+                "tax_amount" => $cart->getTaxAmount(),
+                "shipping_method" => 'UPS',
+                "shipping_amount" => $cart->getShippingAmount(),
+                "coupon_code" => $cart->getCouponcode(),
+                "discount_amount" => $cart->getDiscountAmount(),
+                "created_on" => $cart->getCreatedAt(),
+                "updated_on" => $cart->getUpdatedAt(),
+                "grand_total" => $cart->getGrandTotal(),
+                'cart_items' => $cartItems
+            );
+        }
+
+        if ($pageIdentifier == 'checkout_onepage_success') {
+            $order = Mage::getModel('sales/order')->load(Mage::getSingleton('checkout/session')->getLastOrderId());
+
+            $billingAddress = $order->getBillingAddress();
+            $shippingAddress = $order->getShippingAddress();
+
+            $address = array();
+            $billingStreet = $billingAddress->getStreet();
+            $shippingStreet = $shippingAddress->getStreet();
+            $address['billing'] = array(
+                "name" => $billingAddress->getName(),
+                "address_1" => $billingStreet[0],
+                "address_2" => '',
+                "city" => $billingAddress->getCity(),
+                "region" => $billingAddress->getRegion(),
+                "country" => $billingAddress->getCountryId(),
+                "country_code" => $billingAddress->getCountryId(),
+                "zipcode" => $billingAddress->getPostcode()
+            );
+
+            $address['shipping'] = array(
+                "name" => $shippingAddress->getName(),
+                "address_1" => $shippingStreet[0],
+                "address_2" => '',
+                "city" => $shippingAddress->getCity(),
+                "region" => $shippingAddress->getRegion(),
+                "country" => $shippingAddress->getCountryId(),
+                "country_code" => $shippingAddress->getCountryId(),
+                "zipcode" => $shippingAddress->getPostcode()
+            );
+            $items = array();
+            foreach ($order->getAllItems() as $item) {
+                $items[] = array(
+                    'ordered_item_id' => $item->getId(),
+                    'pid' => $item->getProductId(),
+                    'sku' => $item->getSku(),
+                    'name' => $item->getName(),
+                    "currency" => $order->getOrderCurrencyCode(),
+                    'unit_price' => $item->getPrice(),
+                    'final_price' => $item->getFinalPrice(),
+                    'order_qty' => $item->getQtyOrdered(),
+                    'row_total' => $item->getRowTotal(),
+                    "tax_amount" => $item->getTaxAmount(),
+                    "discount_amount" => $item->getDiscountAmount(),
+                    "created_on" => $item->getCreatedAt(),
+                    "updated_on" => $item->getUpdatedAt(),
+                );
+            }
+
+            $matrixData['order_success'] = array(
+                "order_id" => $order->getEntityId(),
+                "items_qty" => $order->getTotalQtyOrdered(),
+                "currency" => $order->getOrderCurrencyCode(),
+                "subtotal" => $order->getSubtotal(),
+                "tax_amount" => $order->getTaxAmount(),
+                "shipping_method" => $order->getShippinMethod(),
+                "shipping_amount" => $order->getShippingAmount(),
+                "payment_method" => $order->getPaymentMethod(),
+                "coupon_code" => $order->getCouponCode(),
+                "discount_amount" => $order->getDiscountAmount(),
+                "grand_total" => $order->getGrandTotal(),
+                "created_on" => $order->getCreatedAt(),
+                "updated_on" => $order->getUpdatedAt(),
+                "address" => $address,
+                "ordered_items" => $items
+            );
+
+        }
+        $jsonMatrixData = json_encode($matrixData);
+        Varien_Profiler::stop('Frontuser_Integration');
+        ?>
+        <script type="text/javascript">
+            window.fu_matrix = <?php echo $jsonMatrixData; ?>
+        </script>
+        <?php endif; ?>
+    <?php endif; ?>
+<?php endif; ?>

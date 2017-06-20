@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package>
+    <name>Frontuser_Integration</name>
+    <version>1.0.0</version>
+    <stability>stable</stability>
+    <license uri="https://www.gnu.org/licenses/gpl-3.0.en.html">GPL-v3.0</license>
+    <channel>community</channel>
+    <extends/>
+    <summary>Frontuser Integration for Magento</summary>
+    <description>This extension enables a seamless integration between your Magento store and Frontuser account. Frontuser for Magento ensures your subscribers stay in sync, and your key customer/retail data is available in dotmailer to empower your email marketing.&#xD;
+&#xD;
+Frontuser is a cross-channel platform for customer retention &amp; maximizing user acquisition via personalized web push notification and customized smart popup.</description>
+    <notes>Updated 16 June, 2017 - Stable Release&#xD;
+Compatibility: 1.7, 1.8, 1.8.x, 1.9, 1.9.x</notes>
+    <authors><author><name>Frontuser</name><user>Frontuser</user><email>support@frontuser.com</email></author></authors>
+    <date>2017-06-16</date>
+    <time>10:36:12</time>
+    <contents><target name="magecommunity"><dir name="Frontuser"><dir name="Integration"><dir name="Block"><dir name="Adminhtml"><dir name="System"><dir name="Config"><dir name="Form"><dir name="Field"><file name="CustomerMapfields.php" hash="8dbc0ac92f68c5c76d40757553321f9a"/><file name="ProductMapfields.php" hash="4e16e31a9b989b5c2492bc3a90ec35d7"/></dir></dir></dir></dir></dir></dir><dir name="Helper"><file name="Data.php" hash="c938022f85b5fd276cf18648300f5ebb"/></dir><dir name="Model"><dir name="System"><dir name="Config"><dir name="Backend"><file name="Mapfield.php" hash="f992d0e81c3adf04af2d5fa980638959"/></dir></dir></dir></dir><dir name="etc"><file name="adminhtml.xml" hash="126c7fd379b00769af0e218c3f299714"/><file name="config.xml" hash="fa46d0bc2ae925965b7ae28e2035f9f2"/><file name="system.xml" hash="7070ea0239fbbfbf0dd920fc4bf8fb79"/></dir></dir></dir></target><target name="mageetc"><dir name="modules"><file name="Frontuser_Integration.xml" hash="662d8252d27b3ea9680311ab5801aa75"/></dir></target><target name="magedesign"><dir name="adminhtml"><dir name="default"><dir name="default"><dir name="template"><dir name="frontuser"><dir name="integration"><dir name="system"><dir name="config"><dir name="form"><dir name="field"><file name="array_dropdown.phtml" hash="97ddc8df076d4d21357973c0409c656a"/></dir></dir></dir></dir></dir></dir></dir></dir></dir></dir><dir name="frontend"><dir name="base"><dir name="default"><dir name="layout"><file name="frontuser.xml" hash="d55466b49b041a3950fd5599bc755656"/></dir><dir name="template"><dir name="frontuser"><file name="core.phtml" hash="40115f10fcc77cd36d522c0c5ef58cea"/></dir></dir></dir></dir></dir></target></contents>
+    <compatible/>
+    <dependencies><required><php><min>5.6.0</min><max>7.1.0</max></php></required></dependencies>
+</package>
