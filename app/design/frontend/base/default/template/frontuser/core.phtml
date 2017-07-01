@@ -263,9 +263,10 @@
         $module = $request->getModuleName();
         $controller = $request->getControllerName();
         $action = $request->getActionName();
+        $cart = Mage::getModel('checkout/cart')->getQuote();
 
-        if ($module == 'checkout' && $controller == 'cart' && $action == 'index') {
-            $cart = Mage::getModel('checkout/cart')->getQuote();
+        if ($cart && $cart->getItemsQty() > 0) {
+
             $cartItems = array();
             foreach ($cart->getItemsCollection() as $item) {
                 $row = array();
