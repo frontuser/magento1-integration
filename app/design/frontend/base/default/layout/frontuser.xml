@@ -5,4 +5,9 @@
             <block type="core/template" name="frontuser_integration" template="frontuser/core.phtml"/>
         </reference>
     </default>
+    <checkout_onepage_success>
+        <reference name="before_body_end" after="-">
+            <block type="core/template" name="frontuser_conversion" template="frontuser/conversion.phtml"/>
+        </reference>
+    </checkout_onepage_success>
 </layout>

@@ -1,0 +1,15 @@
+<?php
+    $helper = Mage::helper( 'frontuser');
+?>
+<?php if ($helper->isModuleEnabled('Frontuser_Integration') && $helper->isActive() && $helper->getWebsiteHash()): ?>
+    <script type="text/javascript">
+
+        var TrackRevenue = function() {
+            return {
+                amount: '<?php echo $helper->getRevenue(); ?>',
+                currency: '<?php echo $helper->getCurrency(); ?>'
+            };
+        };
+
+    </script>
+<?php endif; ?>

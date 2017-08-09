@@ -160,4 +160,28 @@ class Frontuser_Integration_Helper_Data extends Mage_Core_Helper_Abstract
         return $this->getConfigValueForScope(self::GENERAL_PRODUCT_MAP_FIELDS, $scopeId, $scope);
     }
 
+	/**
+	 * Get total order amount
+	 *
+	 * @return string
+	 */
+	public function getRevenue()
+	{
+		$revenue = 0;
+		$order = Mage::getModel('sales/order')->load(Mage::getSingleton('checkout/session')->getLastOrderId());
+		if(!empty( $order)) {
+			$revenue = $order->getGrandTotal();
+		}
+		return number_format($revenue, 2, '.', '');
+	}
+
+	/**
+	 * Get store currency code
+	 *
+	 * @return string
+	 */
+	public function getCurrency()
+	{
+		return Mage::app()->getStore()->getCurrentCurrencyCode();
+	}
 }
