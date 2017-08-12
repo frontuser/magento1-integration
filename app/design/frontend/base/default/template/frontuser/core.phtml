@@ -31,15 +31,17 @@
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 ?>
-<?php if (Mage::helper('frontuser')->isModuleEnabled('Frontuser_Integration')): ?>
-    <?php if (Mage::helper('frontuser')->isActive()): ?>
-        <?php if (Mage::helper('frontuser')->getWebsiteHash()): ?>
+<?php $helper = Mage::helper( 'frontuser'); ?>
+
+<?php if ($helper->isModuleEnabled('Frontuser_Integration')): ?>
+    <?php if ($helper->isActive()): ?>
+        <?php if ($helper->getWebsiteHash()): ?>
             <script type="text/javascript">//<![CDATA[
                 var Translator = new Translate([]);
                 //]]></script>
             <script type="text/javascript">
                 (function (p, u, s, h) {
-                    var t = '<?php echo Mage::helper('frontuser')->getWebsiteHash(); ?>';
+                    var t = '<?php echo $helper->getWebsiteHash(); ?>';
                     p._fq = p._fq || [];
                     p._fq.push(['_currentTime', Date.now()]);
                     s = u.createElement('script');
@@ -53,14 +55,14 @@
         <?php endif; ?>
 
 
-        <?php if (Mage::helper('frontuser')->isMatrixDataActive()): ?>
+        <?php if ($helper->isMatrixDataActive()): ?>
         <?php
         $matrixData = array();
         Varien_Profiler::start('Frontuser_Integration');
         if (Mage::getSingleton('customer/session')->isLoggedIn()) {
             $customer_data = Mage::getSingleton('customer/session')->getCustomer();
-            if (Mage::helper('frontuser')->getCustomMergeFieldsSerialized()) {
-                $jsonCustAttributes = Mage::helper('frontuser')->getCustomMergeFieldsSerialized();
+            if ($helper->getCustomMergeFieldsSerialized()) {
+                $jsonCustAttributes = $helper->getCustomMergeFieldsSerialized();
                 $arrCustAttributes = unserialize($jsonCustAttributes);
                 $userData = array(
                     'id' => $customer_data->getId(),
@@ -125,8 +127,8 @@
                     "name" => $data['name'],
                     "stock" => '',
                     "currency" => '',
-                    "unit_price" => $data['price'],
-                    "final_price" => $data['final_price']
+                    "unit_price" => $helper->formatPrice($data['price']),
+                    "final_price" => $helper->formatPrice($data['final_price'])
                 );
                 array_push($items, $test);
             }
@@ -190,10 +192,10 @@
                     "pid" => $pId,
                     'sku' => $relatedProduct->getSku(),
                     'name' => $relatedProduct->getName(),
-                    'stock' => $relatedProduct->getStockItem()->getQty(),
+                    'stock' => (int)$relatedProduct->getStockItem()->getQty(),
                     'currency' => Mage::app()->getStore()->getCurrentCurrencyCode(),
-                    'unit_price' => $relatedProduct->getPrice(),
-                    'final_price' => $relatedProduct->getFinalPrice()
+                    'unit_price' => $helper->formatPrice($relatedProduct->getPrice()),
+                    'final_price' => $helper->formatPrice($relatedProduct->getFinalPrice())
                 );
                 array_push($arrRelatedProduct, $arrProduct);
             }
@@ -235,14 +237,14 @@
                 'stock' => $_product->getQty(),
                 'currency' => Mage::app()->getStore()->getCurrentCurrencyCode(),
                 'unit_price' => '',
-                'final_price' => $_product->getPrice(),
+                'final_price' => $helper->formatPrice($_product->getPrice()),
                 'attributes' => $proAttribute,
                 'related_products' => $arrRelatedProduct,
                 'reviews' => $proReviews
             );
 
-            if (Mage::helper('frontuser')->getProductMergeFieldsSerialized()) {
-                $jsonProductAttributes = Mage::helper('frontuser')->getProductMergeFieldsSerialized();
+            if ($helper->getProductMergeFieldsSerialized()) {
+                $jsonProductAttributes = $helper->getProductMergeFieldsSerialized();
                 $arrProductAttributes = unserialize($jsonProductAttributes);
 
                 foreach ($arrProductAttributes as $key => $value) {
@@ -275,11 +277,11 @@
                 $row['sku'] = $item->getSku();
                 $row['name'] = $item->getName();
                 $row['currency'] = Mage::app()->getStore()->getCurrentCurrencyCode();
-                $row['unit_price'] = $item->getPrice();
-                $row['final_price'] = $item->getFinalPrice();
+                $row['unit_price'] = $helper->formatPrice($item->getPrice());
+                $row['final_price'] = $helper->formatPrice($item->getFinalPrice());
                 $row['qty_added'] = (int)$item->getQty();
-                $row['row_total'] = $item->getRowTotal();
-                $row['discount_amount'] = $item->getDiscountAmount();
+                $row['row_total'] = $helper->formatPrice($item->getRowTotal());
+                $row['discount_amount'] = $helper->formatPrice($item->getDiscountAmount());
                 $row['created_on'] = $item->getCreatedAt();
                 $row['updated_on'] = $item->getUpdatedAt();
                 $cartItems[] = $row;
@@ -287,17 +289,17 @@
 
             $matrixData['cart'] = array(
                 'quote_id' => $cart->getEntityId(),
-                'items_qty' => $cart->getItemsQty(),
+                'items_qty' => (int)$cart->getItemsQty(),
                 'currency' => $cart->getQuoteCurrencyCode(),
-                "subtotal" => $cart->getSubtotal(),
-                "tax_amount" => $cart->getTaxAmount(),
+                "subtotal" => $helper->formatPrice($cart->getSubtotal()),
+                "tax_amount" => $helper->formatPrice($cart->getTaxAmount()),
                 "shipping_method" => 'UPS',
-                "shipping_amount" => $cart->getShippingAmount(),
+                "shipping_amount" => $helper->formatPrice($cart->getShippingAmount()),
                 "coupon_code" => $cart->getCouponcode(),
-                "discount_amount" => $cart->getDiscountAmount(),
+                "discount_amount" => $helper->formatPrice($cart->getDiscountAmount()),
                 "created_on" => $cart->getCreatedAt(),
                 "updated_on" => $cart->getUpdatedAt(),
-                "grand_total" => $cart->getGrandTotal(),
+                "grand_total" => $helper->formatPrice($cart->getGrandTotal()),
                 'cart_items' => $cartItems
             );
         }
@@ -340,12 +342,12 @@
                     'sku' => $item->getSku(),
                     'name' => $item->getName(),
                     "currency" => $order->getOrderCurrencyCode(),
-                    'unit_price' => $item->getPrice(),
-                    'final_price' => $item->getFinalPrice(),
-                    'order_qty' => $item->getQtyOrdered(),
-                    'row_total' => $item->getRowTotal(),
-                    "tax_amount" => $item->getTaxAmount(),
-                    "discount_amount" => $item->getDiscountAmount(),
+                    'unit_price' => $helper->formatPrice($item->getPrice()),
+                    'final_price' => $helper->formatPrice($item->getFinalPrice()),
+                    'order_qty' => (int)$item->getQtyOrdered(),
+                    'row_total' => $helper->formatPrice($item->getRowTotal()),
+                    "tax_amount" => $helper->formatPrice($item->getTaxAmount()),
+                    "discount_amount" => $helper->formatPrice($item->getDiscountAmount()),
                     "created_on" => $item->getCreatedAt(),
                     "updated_on" => $item->getUpdatedAt(),
                 );
@@ -353,16 +355,16 @@
 
             $matrixData['order_success'] = array(
                 "order_id" => $order->getEntityId(),
-                "items_qty" => $order->getTotalQtyOrdered(),
+                "items_qty" => (int)$order->getTotalQtyOrdered(),
                 "currency" => $order->getOrderCurrencyCode(),
-                "subtotal" => $order->getSubtotal(),
-                "tax_amount" => $order->getTaxAmount(),
+                "subtotal" => $helper->formatPrice($order->getSubtotal()),
+                "tax_amount" => $helper->formatPrice($order->getTaxAmount()),
                 "shipping_method" => $order->getShippinMethod(),
-                "shipping_amount" => $order->getShippingAmount(),
+                "shipping_amount" => $helper->formatPrice($order->getShippingAmount()),
                 "payment_method" => $order->getPaymentMethod(),
                 "coupon_code" => $order->getCouponCode(),
-                "discount_amount" => $order->getDiscountAmount(),
-                "grand_total" => $order->getGrandTotal(),
+                "discount_amount" => $helper->formatPrice($order->getDiscountAmount()),
+                "grand_total" => $helper->formatPrice($order->getGrandTotal()),
                 "created_on" => $order->getCreatedAt(),
                 "updated_on" => $order->getUpdatedAt(),
                 "address" => $address,

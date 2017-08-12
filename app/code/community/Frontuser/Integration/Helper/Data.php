@@ -184,4 +184,15 @@ class Frontuser_Integration_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return Mage::app()->getStore()->getCurrentCurrencyCode();
 	}
+
+	/**
+	 * Format price into 2 decimal point value
+	 *
+	 * @param int $price
+	 * @return float
+	 */
+	public function formatPrice($price = 0)
+	{
+		return floatval(number_format($price, 2, '.', ''));
+	}
 }
