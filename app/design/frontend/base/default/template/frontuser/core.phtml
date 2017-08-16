@@ -300,6 +300,8 @@
                 "created_on" => $cart->getCreatedAt(),
                 "updated_on" => $cart->getUpdatedAt(),
                 "grand_total" => $helper->formatPrice($cart->getGrandTotal()),
+                "quote_token" => $cart->getFutoken(),
+                "cart_url" => Mage::getUrl('frontuser/index/index', array('code' => $cart->getFutoken())),
                 'cart_items' => $cartItems
             );
         }

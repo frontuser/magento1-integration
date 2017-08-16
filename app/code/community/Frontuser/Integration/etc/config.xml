@@ -35,7 +35,7 @@
 <config>
     <modules>
         <Frontuser_Integration>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
         </Frontuser_Integration>
     </modules>
     <global>
@@ -44,6 +44,18 @@
                 <class>Frontuser_Integration_Helper</class>
             </frontuser>
         </helpers>
+        <models>
+            <frontuser>
+                <class>Frontuser_Integration_Model</class>
+            </frontuser>
+        </models>
+        <resources>
+            <frontuser_setup>
+                <setup>
+                    <module>Frontuser_Integration</module>
+                </setup>
+            </frontuser_setup>
+        </resources>
     </global>
     <frontend>
         <layout>
@@ -53,6 +65,25 @@
                 </frontuser>
             </updates>
         </layout>
+        <events>
+            <sales_quote_save_before>
+                <observers>
+                    <frontuser_integration_quote_save>
+                        <class>frontuser/observer</class>
+                        <method>upgrade</method>
+                    </frontuser_integration_quote_save>
+                </observers>
+            </sales_quote_save_before>
+        </events>
+        <routers>
+            <frontuser_integration>
+                <use>standard</use>
+                <args>
+                    <module>Frontuser_Integration</module>
+                    <frontName>frontuser</frontName>
+                </args>
+            </frontuser_integration>
+        </routers>
     </frontend>
     <default>
         <frontuser>
