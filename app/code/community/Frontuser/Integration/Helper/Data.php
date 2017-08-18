@@ -195,4 +195,67 @@ class Frontuser_Integration_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return floatval(number_format($price, 2, '.', ''));
 	}
+
+	/**
+	 * Return type of page based on handle
+	 *
+	 * @return string
+	 */
+	public function getPageType()
+	{
+		$page = Mage::getSingleton('cms/page');
+		$pagetype = $handler = Mage::app()->getFrontController()->getAction()->getFullActionName();
+
+		$handler = explode( "_", $handler);
+		if(is_array( $handler) && count( $handler) > 0) {
+			$pagetype = current( $handler );
+		}
+
+		if ($page->getId()) {
+			if ($page->getIdentifier() == Mage::getStoreConfig('web/default/cms_home_page')) {
+				$pagetype = 'home';
+			} else {
+				$pagetype = strtolower($page->getTitle());
+			}
+		}
+		if (strpos($handler, 'catalogsearch_') === 0) {
+			$pagetype = 'search';
+		}
+		if (strpos($handler, 'customer_account_') === 0) {
+			$pagetype = 'customer account';
+		}
+		if (strpos($handler, 'customer_address_') === 0) {
+			$pagetype = 'customer address';
+		}
+		if (strpos($handler, 'wishlist_') === 0) {
+			$pagetype = 'wishlist';
+		}
+		if (strpos($handler, 'sales_') === 0) {
+			$pagetype = 'order';
+		}
+		if (strpos($handler, 'review_customer_') === 0) {
+			$pagetype = 'customer review';
+		}
+		if (strpos($handler, 'newsletter_manage_') === 0) {
+			$pagetype = 'newsletter';
+		}
+		switch ($handler) {
+			case 'catalog_category_view': $pagetype = 'category'; break;
+			case 'catalog_product_view': $pagetype = 'product'; break;
+			case 'checkout_cart_index': $pagetype = 'cart'; break;
+			case 'checkout_onepage_index': $pagetype = 'checkout'; break;
+			case 'checkout_onepage_success': $pagetype = 'success'; break;
+			case 'customer_account_login': $pagetype = 'login'; break;
+			case 'customer_account_create': $pagetype = 'register'; break;
+			case 'customer_account_logoutSuccess': $pagetype = 'logout'; break;
+			case 'customer_account_index': $pagetype = 'dashboard'; break;
+			case 'review_product_list': $pagetype = 'product review'; break;
+			case 'downloadable_customer_products': $pagetype = 'downloadable product'; break;
+			case 'catalog_seo_sitemap_category': $pagetype = 'sitemap'; break;
+			case 'contacts_index_index': $pagetype = 'contactus'; break;
+			case 'catalog_product_compare_index': $pagetype = 'compare product'; break;
+		}
+
+		return $pagetype;
+	}
 }
