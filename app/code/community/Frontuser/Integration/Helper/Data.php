@@ -206,10 +206,10 @@ class Frontuser_Integration_Helper_Data extends Mage_Core_Helper_Abstract
 		$page = Mage::getSingleton('cms/page');
 		$pagetype = $handler = Mage::app()->getFrontController()->getAction()->getFullActionName();
 
-		$handler = explode( "_", $handler);
-		if(is_array( $handler) && count( $handler) > 0) {
-			$pagetype = current( $handler );
-		}
+		$action = explode( "_", $handler);
+        if(is_array( $action) && count( $action) > 0) {
+            $pagetype = current( $action );
+        }
 
 		if ($page->getId()) {
 			if ($page->getIdentifier() == Mage::getStoreConfig('web/default/cms_home_page')) {

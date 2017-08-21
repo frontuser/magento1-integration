@@ -82,7 +82,7 @@
         $pageIdentifier = Mage::app()->getFrontController()->getAction()->getFullActionName();
         $matrixData['page'] = array(
             'name' => $this->getLayout()->getBlock('head')->getTitle(),
-            'type' => Mage::app()->getFrontController()->getRequest()->getRouteName(),
+            'type' => $helper->getPageType(),
             'url' => Mage::helper('core/url')->getCurrentUrl()
 
         );
