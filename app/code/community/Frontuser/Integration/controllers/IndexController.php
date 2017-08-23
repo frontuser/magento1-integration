@@ -36,12 +36,19 @@ class Frontuser_Integration_IndexController extends Mage_Core_Controller_Front_A
     public function indexAction()
     {
 	    $code = $this->getRequest()->getParam('code');
-	    $quote = Mage::getSingleton('sales/quote')->load($code,'futoken');
+	    $track = $this->getRequest()->getParam('_track');
+	    $campaign = $this->getRequest()->getParam('_campaign');
 
+	    $redirect = 'checkout/cart';
+	    if(!empty($track) && !empty($campaign)) {
+		    $redirect .= "?_track=$track&_campaign=$campaign";
+	    }
+
+	    $quote = Mage::getSingleton('sales/quote')->load($code,'futoken');
 	    if(!empty( $quote )) {
 		    Mage::getSingleton('checkout/session')->setQuoteId($quote->getId());
 	    }
 
-	    $this->_redirect('checkout/cart');
+	    $this->_redirect($redirect);
     }
 }

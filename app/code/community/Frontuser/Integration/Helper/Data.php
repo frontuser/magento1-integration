@@ -207,9 +207,9 @@ class Frontuser_Integration_Helper_Data extends Mage_Core_Helper_Abstract
 		$pagetype = $handler = Mage::app()->getFrontController()->getAction()->getFullActionName();
 
 		$action = explode( "_", $handler);
-        if(is_array( $action) && count( $action) > 0) {
-            $pagetype = current( $action );
-        }
+		if(is_array( $action) && count( $action) > 0) {
+			$pagetype = current( $action );
+		}
 
 		if ($page->getId()) {
 			if ($page->getIdentifier() == Mage::getStoreConfig('web/default/cms_home_page')) {
@@ -239,6 +239,7 @@ class Frontuser_Integration_Helper_Data extends Mage_Core_Helper_Abstract
 		if (strpos($handler, 'newsletter_manage_') === 0) {
 			$pagetype = 'newsletter';
 		}
+
 		switch ($handler) {
 			case 'catalog_category_view': $pagetype = 'category'; break;
 			case 'catalog_product_view': $pagetype = 'product'; break;
