@@ -39,7 +39,7 @@ class Frontuser_Integration_IndexController extends Mage_Core_Controller_Front_A
 	    $track = $this->getRequest()->getParam('_track');
 	    $campaign = $this->getRequest()->getParam('_campaign');
 
-	    $redirect = 'checkout/cart';
+	    $redirect = 'checkout/cart/';
 	    if(!empty($track) && !empty($campaign)) {
 		    $redirect .= "?_track=$track&_campaign=$campaign";
 	    }
