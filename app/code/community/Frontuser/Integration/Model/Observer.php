@@ -43,9 +43,10 @@ class Frontuser_Integration_Model_Observer
 	{
 		$quote = $observer->getEvent()->getQuote();
 
-		$token = Mage::helper('core')->getRandomString(32);
-
-		$quote->setFutoken($token);
+		if(!$quote->getFutoken()) {
+			$token = Mage::helper( 'core' )->getRandomString( 32 );
+			$quote->setFutoken( $token );
+		}
 
 		return $observer;
 	}
